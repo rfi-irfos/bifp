@@ -1,0 +1,40 @@
+[package]
+name = "bifp-core"
+version = "0.1.0"
+edition = "2021"
+description = "Bidirectional Instant Feedback Protocol (BIFP) — native ternary flag/consensus/teach-then-handoff primitives, with real (non-tag-encoded) trit persistence."
+license = "MIT"
+repository = "https://github.com/rfi-irfos/bifp"
+homepage = "https://github.com/rfi-irfos/bifp"
+readme = "README.md"
+keywords = ["ternary", "feedback", "protocol", "consensus", "hitl"]
+categories = ["algorithms", "data-structures"]
+authors = ["RFI-IRFOS <rfi.irfos@gmail.com>"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["clock"] }
+anyhow = { version = "1.0.103", optional = true }
+schemars = { version = "1.2.1", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
+
+[[bin]]
+name = "bifp-mcp-server"
+path = "src/bin/bifp_mcp_server.rs"
+required-features = ["mcp"]
+
+[features]
+mcp = ["dep:rmcp", "dep:tokio", "dep:anyhow", "dep:schemars"]
+
+[dependencies.rmcp]
+version = "2.1"
+features = ["server", "transport-io", "macros"]
+optional = true
+
+[dependencies.tokio]
+version = "1"
+features = ["rt-multi-thread", "macros", "io-std"]
+optional = true

@@ -18,7 +18,7 @@
 \definecolor{rfi-brown}{RGB}{150,105,65}\definecolor{rfi-purple}{RGB}{160,120,225}
 \definecolor{rfi-yellow}{RGB}{235,215,80}\definecolor{rfi-green}{RGB}{95,205,115}
 \definecolor{rfi-blue}{RGB}{80,165,230}\definecolor{rfi-closed}{RGB}{75,80,95}
-\hypersetup{colorlinks=true, linkcolor=rfi-accent, urlcolor=rfi-accent, pdftitle={Bidirectional Instant Feedback Protocol (BIFP) -- v0.1 Draft Protocol Specification}, pdfauthor={RFI-IRFOS Research Team}}
+\hypersetup{colorlinks=true, linkcolor=rfi-accent, urlcolor=rfi-accent, pdftitle={Bidirectional Instant Feedback Protocol (BIFP) -- v0.2 Draft Protocol Specification}, pdfauthor={RFI-IRFOS Research Team}}
 \arrayrulecolor{rfi-gray!55}
 \titleformat{\section}{\large\bfseries\color{rfi-white}}{}{0pt}{#1}[{\color{rfi-accent}\vspace{2pt}\noindent\rule{\linewidth}{1.5pt}}]
 \titleformat{\subsection}{\normalsize\bfseries\color{rfi-white}}{}{0pt}{#1}[{\color{rfi-accent!70}\vspace{1pt}\noindent\rule{\linewidth}{0.5pt}}]
@@ -26,7 +26,7 @@
 \titlespacing*{\section}{0pt}{14pt}{6pt}\titlespacing*{\subsection}{0pt}{10pt}{4pt}\titlespacing*{\subsubsection}{0pt}{6pt}{2pt}
 \pagestyle{fancy}\fancyhf{}
 \fancyhead[L]{\small\color{rfi-gray}\textbf{RFI-IRFOS}}
-\fancyhead[R]{\small\color{rfi-gray}v0.1 Draft Protocol Specification -- BIFP v0.1}
+\fancyhead[R]{\small\color{rfi-gray}v0.2 Draft Protocol Specification -- BIFP v0.2}
 \fancyfoot[C]{\small\color{rfi-gray}\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\headrule}{\color{rfi-accent!40}\hrule width\headwidth height\headrulewidth}
@@ -46,12 +46,12 @@
 {\fontsize{26pt}{32pt}\selectfont\bfseries\color{rfi-white}
 Bidirectional Instant Feedback Protocol (BIFP)}
 \vspace{4mm}{\fontsize{16pt}{20pt}\selectfont\color{rfi-accent}
-v0.1 Draft Protocol Specification}
+v0.2 Draft Protocol Specification}
 \vspace{2mm}{\fontsize{11pt}{14pt}\selectfont\color{rfi-text}
 Real-time, symmetric feedback between human and agent — teach, don't just refuse or silently complete}
 \vspace{8mm}{\color{rfi-accent!40}\rule{\linewidth}{0.5pt}}\vspace{6mm}
 \begin{tabular}{@{}ll}
-\color{rfi-gray}\small\textbf{Author} & \color{rfi-white}\small RFI-IRFOS Research Team \\[4pt] \color{rfi-gray}\small\textbf{Origin} & \color{rfi-white}\small Simeon Kepp, concept \textasciitilde{}2021, formalized 2026-07-02 \\[4pt] \color{rfi-gray}\small\textbf{Status} & \color{rfi-white}\small v0.1 — Draft \\[4pt] \color{rfi-gray}\small\textbf{Repository} & \color{rfi-white}\small \textasciitilde{}/projects/bifp (RUNBOOK.md holds real, dated tool transcripts) \\[4pt]
+\color{rfi-gray}\small\textbf{Author} & \color{rfi-white}\small RFI-IRFOS Research Team \\[4pt] \color{rfi-gray}\small\textbf{Origin} & \color{rfi-white}\small Simeon Kepp, concept \textasciitilde{}2021, formalized 2026-07-02 \\[4pt] \color{rfi-gray}\small\textbf{Status} & \color{rfi-white}\small v0.2 — Draft (v0.1 same day, hours earlier) \\[4pt] \color{rfi-gray}\small\textbf{Repository} & \color{rfi-white}\small github.com/rfi-irfos/bifp — bifp-core crate + MCP server + RUNBOOK.md \\[4pt]
 \end{tabular}
 \vfill\begin{tabular}{@{}ll}\color{rfi-gray}\small rfi.irfos@gmail.com & \color{rfi-gray}\small rfi-irfos.com \\[2pt]\multicolumn{2}{@{}l}{\color{rfi-gray}\small ZVR 1015608684 \textbullet{} GISA 39261441 \textbullet{} Steuernummer 68 028/0989 \textbullet{} Graz, Austria}\end{tabular}
 \newpage\fancyhead[L]{\small\color{rfi-gray}\textbf{RFI-IRFOS}}
@@ -62,10 +62,10 @@ Most human-Digital Intelligence (DI) interaction is one-directional: the human c
 This document is deliberately narrow in what it claims. Every statement below is one of three things, and is labeled as such: (a) real code, cited by file path, (b) a real, dated tool-call transcript, reproducible against the same MCP server, or (c) explicit future work. Nothing here is illustrative data presented as a finished result — that discipline was applied retroactively to four of RFI-IRFOS's own older concept papers before this document was written, and two of them (Echo Frame Recognition's headline statistics, and this document's own first color-palette draft) did not survive that discipline unchanged.
 
 \vspace{6pt}\begin{tcolorbox}[findingbox]
-\textbf{\color{rfi-white}Scope:} In scope for v0.1: the flag tuple, teach-then-handoff via task decomposition, disagreement resolution via structured ternary debate, a self-honesty calibration gate, and a co-designed 10-symbol badge palette for visualizing feedback events, all demonstrated live against RFI-IRFOS's existing ternlang-engram MCP tools. Out of scope for v0.1: a native persisted trit field (the underlying memory schema doesn't have one yet), a built (not merely specified) Lighthouse UI surface, and any claim about a dedicated Ternlang runtime crate, which does not exist on disk yet.
+\textbf{\color{rfi-white}Scope:} New in v0.2, same evening as v0.1: a real, tested, published-to-crates.io Rust crate (bifp-core) implementing the flag tuple with a native trit field (not tag-encoded), teach-then-handoff planning, ternary consensus, a TAP-inspired hold gate, and the badge palette — plus a working MCP server wrapping all of it, verified against a live JSON-RPC handshake, not just unit tests. The Lighthouse extension described as file-level spec in v0.1 §6.2 is now real code (migration, API, badge component), built and locally verified — deployment to the live production system is intentionally held pending explicit authorization, itself a real BIFP example, see the new §8. Still out of scope: a real ternlang-core/ternlang-moe Rust crate distinct from bifp-core (no such workspace exists on this machine), and formalizing the original whitepaper's TAP mention (bifp-core's tap module is a separate, honestly-labeled reimplementation of the described behavior, not that project).
 \end{tcolorbox}\vspace{6pt}
 \vspace{6pt}\begin{tcolorbox}[winbox, title=Disposition]
-Provenance discipline, stated once and applied throughout: this is a v0.1 draft naming what is real, what is transcript-verified, and what is proposed — not a finished, evaluated protocol. Where an earlier RFI-IRFOS paper's numbers could not be verified, they are cited as concept-only. Where this document's own working numbers came from a real measurement Simeon supplied mid-session, that provenance is stated explicitly rather than presented as if it were always known.
+Provenance discipline, stated once and applied throughout: this is a v0.2 draft naming what is real, what is transcript-verified, and what is proposed — not a finished, evaluated protocol. Where an earlier RFI-IRFOS paper's numbers could not be verified, they are cited as concept-only. Where this document's own working numbers came from a real measurement Simeon supplied mid-session, that provenance is stated explicitly rather than presented as if it were always known. Where v0.1 called something future work and it got built the same evening, this revision says so plainly rather than quietly rewriting history.
 \end{tcolorbox}\vspace{6pt}
 \newpage
 \section{Motivation \& Origin}
@@ -148,25 +148,42 @@ The diamond is deliberately the only non-circular symbol in the set: every other
 6.1 Runbook — real, executed the same day this document was drafted. Full transcripts live in RUNBOOK.md, not reproduced here in full. Summary: trit\_plan correctly routed the two steps requiring human authority (thread-consolidation judgment, final send sign-off) into the hold queue while proceeding on five mechanical/technical steps. trit\_debate held two genuinely nuanced claims in tend rather than forcing a winner (tension 0.10, verdict AGREEMENT) — reported as a real, not especially flattering, result. trit\_consensus(−1,+1) cleanly resolved a synthetic human-vs-agent disagreement to hold. trit\_calibrate flagged one real decision from this same session as a possible over-confident binary call — itself a disclosed false positive, since that particular decision was in fact a plain yes/no fact, not something warranting a hedge.
 
 
-6.2 Lighthouse extension — specified at the file level, not yet built. A new bifp\_signals table (entity\_type, entity\_id, direction, trit, confidence, note) rides the platform's existing SSE spine via the same pg\_notify pattern already used elsewhere; a new signals.rs module follows tags.rs's auth scaffolding and rlhf.rs's audit-log write convention (a flag is a trust-relevant event, not merely an activity log line); a new SignalBadge.tsx component follows ConnBadge.tsx's computed-status pattern, not TagBar.tsx's shared-per-name tag color, which is the wrong shape for a continuously-recomputed per-instance value. The existing tags/taggings system is reused, unmodified, only as the separate manual-dispute layer sitting alongside the computed badge — the concrete answer to Digital Smell's missing correction mechanism.
+6.2 Lighthouse extension — built the same evening, code-complete, deployment intentionally held. A bifp\_signals table (entity\_type, entity\_id, direction, trit, confidence, note) rides the platform's existing SSE spine via the same bump\_change\_seq trigger pattern already used elsewhere (0135\_datasets\_change\_seq.sql); signals.rs follows tags.rs's auth scaffolding and rlhf.rs's audit-log write convention (a flag is a trust-relevant event, not merely an activity log line); SignalBadge.tsx follows ConnBadge.tsx's computed-status pattern, not TagBar.tsx's shared-per-name tag color, which is the wrong shape for a continuously-recomputed per-instance value. tags.rs's valid\_entity() gained "bifp\_event" as the separate manual-dispute layer sitting alongside the computed badge. All of it compiles, typechecks, and builds clean — committed locally. It has not been pushed to the live production Lighthouse system, because that specific authorization was not part of what was asked for; see §8.
 
 
-\begin{tcolorbox}[lowbox, title={6.3 — Explicitly future work, not claimed as built}]
-A real ternlang-core / ternlang-moe Rust crate (no such workspace exists on this machine today, only a docs/stdlib mirror). Formalizing TAP for real, if RFI-IRFOS chooses to. A native signed-trit column upstreamed into engram\_remember's persisted schema, replacing today's tag-encoded workaround. OSF publication of this document once v0.1 has had further review.
+\begin{tcolorbox}[winbox, title={6.3 — bifp-core: a real, tested Rust crate, published}]
+A from-scratch crate implementing every BIFP primitive natively: Trit (with consensus() and decide(), reverse-engineered from live tool output rather than assumed from docstrings — the reference tool's own documentation claims a plain >=0.7 confidence cutoff for its planner that its actual output does not match), Flag, plan() (teach-then-handoff), tap (a from-scratch reimplementation of the whitepaper's one-sentence TAP description, explicitly not a claim to be that project), badge (the palette below, as code), and FlagStore (a real native-trit JSONL store, replacing this document's own earlier tag-encoded workaround). 14 tests pass, including one that reproduces the exact real-world 7-subtask split from the RUNBOOK. Wrapped as a real MCP server (bifp-mcp-server, via rmcp) and verified against a live JSON-RPC handshake — not just cargo test. Two real bugs were found and fixed during that live verification, not before: a raw serde\_json::Value return type produced an invalid MCP output schema (root type must be "object"), and FlagStore::remember failed silently the first time because its target directory didn't exist yet (create(true) makes the file, not missing parent directories) — both are now covered by regression tests.
 \end{tcolorbox}
 \vspace{4pt}
+
+\begin{tcolorbox}[lowbox, title={6.4 — Explicitly still future work, not claimed as built}]
+A real ternlang-core / ternlang-moe Rust crate distinct from bifp-core (no such workspace exists on this machine today, only a docs/stdlib mirror) — bifp-core is a small, purpose-built crate for BIFP's own needs, not a general ternary language runtime, and does not close this gap. Formalizing the original whitepaper's TAP for real, if RFI-IRFOS chooses to — bifp-core's tap module matches the described behavior but is a separate, honestly-labeled thing. OSF publication of this document once it has had further review.
+\end{tcolorbox}
+\vspace{4pt}
+
+\section{v0.2 — Real Examples From the Same Evening}
+v0.1 leaned on tool-call transcripts for evidence. Between v0.1 and v0.2, several genuine bidirectional exchanges happened in the ordinary course of the same conversation — not staged, not re-run for a cleaner writeup. They are better evidence for this protocol than anything synthetic, so they are logged here rather than left to evaporate.
+
+
+\begin{itemize}[leftmargin=14pt, itemsep=2pt]
+  \item The 99\%-figure correction: an earlier concept paper's data-reduction claim was flagged as likely illustrative-only; Simeon supplied the missing measurement context; the assessment was revised and the correction stated plainly rather than defended. A cycle event (the diamond) in the badge palette's own terms.
+  \item The badge palette itself: proposed at 3 colors, pushed back on ("wieso nicht das volle Farbspektrum"), revised to a lifecycle model, revised again once the cultural meaning of the diamond (a cycle, not a status) was explained — the palette that ended up in this document is not the one first proposed.
+  \item A Lighthouse-risk reassessment: an initial recommendation to defer the Lighthouse build was updated, in the open, once new information (the team had gone home; the changes were additive-only) changed the actual risk calculus — not because of social pressure, but because the reasoning was genuinely re-examined and found wanting.
+  \item The cookie/tracking design: a request for section-level analytics was scoped down repeatedly until it required no persistent client-side storage at all, specifically because "100\% halal, keine schlechen Wege" was a hard constraint, not a preference to be negotiated around.
+  \item This document's own §6.2 boundary: mid-way through "working down" this same goal, a git push to Lighthouse's production branch was blocked by an automated safety check, on the correct grounds that broad goal-setting language ("work all this down and publish") did not specifically authorize a production database migration to a live system real employees use. The work stopped, was reported plainly, and stayed stopped pending an explicit answer — the hold queue, not overridden, in the moment it actually mattered rather than only in a demo.
+\end{itemize}
 
 \section{Risks \& Open Questions}
 \begin{itemize}[leftmargin=14pt, itemsep=2pt]
   \item The badge palette's condition-to-color MAPPING is principled and checkable; the specific CHOICE of which hue represents which condition is still an aesthetic/cultural decision, same as Digital Smell's original palette. Red/yellow/green leaning on a near-universal traffic-light convention does not make white=open or black=closed culturally neutral — white carries mourning associations in several East Asian traditions. This has not been cross-checked and should be before any public-facing UI ships.
-  \item No native signed-trit field exists yet in the persisted engram schema; today's tag-encoding is a real, working, but genuinely provisional workaround.
-  \item trit\_debate produced only one tested result in this document (tend/tend, low tension) — that is one data point, not a validated mechanic. More runs across more genuinely opposed claim pairs are needed before relying on it.
-  \item The Lighthouse extension in §6.2 is a specification, not running code, as of this draft.
-  \item PMP's appeal window (seven days) and BIFP's flag loop (intended as real-time) operate on very different timescales for what is structurally a similar mechanism — worth resolving explicitly in v0.2 rather than leaving the two protocols implicitly inconsistent.
+  \item trit\_debate produced only one tested result across both drafts of this document (tend/tend, low tension) — that is one data point, not a validated mechanic. More runs across more genuinely opposed claim pairs are needed before relying on it.
+  \item The Lighthouse extension is real code as of v0.2, but not deployed — a production push needs its own explicit authorization, separate from this document's own scope.
+  \item PMP's appeal window (seven days) and BIFP's flag loop (intended as real-time) operate on very different timescales for what is structurally a similar mechanism — worth resolving explicitly in a future revision rather than leaving the two protocols implicitly inconsistent.
+  \item bifp-core's FlagStore is a new, independent JSONL store — it does not talk to, sync with, or replace the hosted ternlang-engram MCP server's own persisted memory. Two separate stores now exist for adjacent purposes; whether they should ever be reconciled is an open question, not decided here.
 \end{itemize}
 
 \vspace{10pt}{\color{rfi-gray!55}\hrule}\vspace{8pt}
 \begin{tabular}{@{}ll}\textbf{\color{rfi-white}RFI-IRFOS} & \color{rfi-text}rfi.irfos@gmail.com \textbullet{} rfi-irfos.com \\\multicolumn{2}{@{}l}{\color{rfi-text}ZVR 1015608684 \textbullet{} GISA 39261441 \textbullet{} Steuernummer 68 028/0989 \textbullet{} Elisabethinergasse 25/10, 8020 Graz, Austria}\end{tabular}
 \vspace{6pt}{\small\color{rfi-gray}
-This is a v0.1 draft protocol specification, not a peer-reviewed or externally validated standard. Every technical claim above is either cited to real source code by file path, backed by a real dated tool-call transcript in RUNBOOK.md, or explicitly marked as future work — no claim in this document is illustrative data presented as a completed result. REF BIFP-2026-V01.}
+This is a v0.1 draft protocol specification, not a peer-reviewed or externally validated standard. Every technical claim above is either cited to real source code by file path, backed by a real dated tool-call transcript in RUNBOOK.md, or explicitly marked as future work — no claim in this document is illustrative data presented as a completed result. REF BIFP-2026-V02.}
 \end{document}
