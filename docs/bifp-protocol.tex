@@ -1,0 +1,172 @@
+%!TEX program = xelatex
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}\usepackage{geometry}\usepackage{xcolor}\usepackage{colortbl}
+\usepackage{fancyhdr}\usepackage[explicit]{titlesec}\usepackage{hyperref}
+\usepackage{longtable}\usepackage{booktabs}\usepackage{array}\usepackage{enumitem}
+\usepackage{listings}\usepackage[most]{tcolorbox}\usepackage{graphicx}
+\usepackage{setspace}\usepackage{microtype}\usepackage{parskip}\usepackage{afterpage}\usepackage{pagecolor}
+\setmainfont{Inter}[UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,BoldItalicFont=*-BoldItalic,Scale=1.0]
+\setmonofont{DejaVu Sans Mono}[Scale=0.82]
+\geometry{a4paper, top=22mm, bottom=24mm, left=22mm, right=22mm, headheight=14pt, headsep=8mm}
+% ── obsidian palette ──
+\definecolor{rfi-dark}{RGB}{10,15,30}\definecolor{rfi-accent}{RGB}{0,180,216}
+\definecolor{rfi-teal}{RGB}{0,200,170}\definecolor{rfi-red}{RGB}{235,80,95}
+\definecolor{rfi-amber}{RGB}{255,176,32}\definecolor{rfi-gray}{RGB}{140,150,170}
+\definecolor{rfi-bg}{RGB}{245,247,250}\definecolor{cover-bg}{RGB}{8,11,22}
+\definecolor{rfi-text}{RGB}{214,220,232}\definecolor{rfi-panel}{RGB}{20,26,44}
+\definecolor{rfi-codebg}{RGB}{5,8,15}\definecolor{rfi-white}{RGB}{240,243,248}
+\definecolor{rfi-brown}{RGB}{150,105,65}\definecolor{rfi-purple}{RGB}{160,120,225}
+\definecolor{rfi-yellow}{RGB}{235,215,80}\definecolor{rfi-green}{RGB}{95,205,115}
+\definecolor{rfi-blue}{RGB}{80,165,230}\definecolor{rfi-closed}{RGB}{75,80,95}
+\hypersetup{colorlinks=true, linkcolor=rfi-accent, urlcolor=rfi-accent, pdftitle={Bidirectional Instant Feedback Protocol (BIFP) -- v0.1 Draft Protocol Specification}, pdfauthor={RFI-IRFOS Research Team}}
+\arrayrulecolor{rfi-gray!55}
+\titleformat{\section}{\large\bfseries\color{rfi-white}}{}{0pt}{#1}[{\color{rfi-accent}\vspace{2pt}\noindent\rule{\linewidth}{1.5pt}}]
+\titleformat{\subsection}{\normalsize\bfseries\color{rfi-white}}{}{0pt}{#1}[{\color{rfi-accent!70}\vspace{1pt}\noindent\rule{\linewidth}{0.5pt}}]
+\titleformat{\subsubsection}{\small\bfseries\color{rfi-accent!85}}{}{0pt}{\MakeUppercase{#1}}
+\titlespacing*{\section}{0pt}{14pt}{6pt}\titlespacing*{\subsection}{0pt}{10pt}{4pt}\titlespacing*{\subsubsection}{0pt}{6pt}{2pt}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\color{rfi-gray}\textbf{RFI-IRFOS}}
+\fancyhead[R]{\small\color{rfi-gray}v0.1 Draft Protocol Specification -- BIFP v0.1}
+\fancyfoot[C]{\small\color{rfi-gray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{rfi-accent!40}\hrule width\headwidth height\headrulewidth}
+\tcbset{
+ findingbox/.style={colback=rfi-panel, colframe=rfi-accent, coltext=rfi-text, coltitle=rfi-dark, boxrule=1.2pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, fonttitle=\bfseries},
+ critbox/.style={colback=rfi-panel, colframe=rfi-red, coltext=rfi-text, coltitle=rfi-dark, boxrule=1.2pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, fonttitle=\bfseries},
+ medbox/.style={colback=rfi-panel, colframe=rfi-amber, coltext=rfi-text, coltitle=rfi-dark, boxrule=1.2pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, fonttitle=\bfseries},
+ lowbox/.style={colback=rfi-panel, colframe=rfi-gray, coltext=rfi-text, coltitle=rfi-dark, boxrule=1pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, fonttitle=\bfseries},
+ winbox/.style={colback=rfi-panel, colframe=rfi-teal, coltext=rfi-text, coltitle=rfi-dark, boxrule=1.2pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt, fonttitle=\bfseries},
+ codebox/.style={colback=rfi-codebg, colframe=rfi-accent!30, coltext=rfi-white, boxrule=0.5pt, arc=3pt, left=10pt, right=10pt, top=6pt, bottom=6pt, fontupper=\ttfamily\small}}
+\lstset{basicstyle=\ttfamily\small\color{rfi-white}, backgroundcolor=\color{rfi-codebg}, breaklines=true, breakatwhitespace=true, columns=fullflexible, keepspaces=true, frame=none, xleftmargin=10pt, xrightmargin=10pt, aboveskip=6pt, belowskip=6pt}
+\begin{document}\pagecolor{cover-bg}\color{rfi-text}
+
+\thispagestyle{empty}
+\vspace*{16mm}\includegraphics[width=7cm]{/home/eri-irfos/Desktop/Downloads/rfi_irfos_logo_transparent.png}
+\vspace{12mm}{\color{rfi-accent}\rule{\linewidth}{1.5pt}}\vspace{6mm}
+{\fontsize{26pt}{32pt}\selectfont\bfseries\color{rfi-white}
+Bidirectional Instant Feedback Protocol (BIFP)}
+\vspace{4mm}{\fontsize{16pt}{20pt}\selectfont\color{rfi-accent}
+v0.1 Draft Protocol Specification}
+\vspace{2mm}{\fontsize{11pt}{14pt}\selectfont\color{rfi-text}
+Real-time, symmetric feedback between human and agent — teach, don't just refuse or silently complete}
+\vspace{8mm}{\color{rfi-accent!40}\rule{\linewidth}{0.5pt}}\vspace{6mm}
+\begin{tabular}{@{}ll}
+\color{rfi-gray}\small\textbf{Author} & \color{rfi-white}\small RFI-IRFOS Research Team \\[4pt] \color{rfi-gray}\small\textbf{Origin} & \color{rfi-white}\small Simeon Kepp, concept \textasciitilde{}2021, formalized 2026-07-02 \\[4pt] \color{rfi-gray}\small\textbf{Status} & \color{rfi-white}\small v0.1 — Draft \\[4pt] \color{rfi-gray}\small\textbf{Repository} & \color{rfi-white}\small \textasciitilde{}/projects/bifp (RUNBOOK.md holds real, dated tool transcripts) \\[4pt]
+\end{tabular}
+\vfill\begin{tabular}{@{}ll}\color{rfi-gray}\small rfi.irfos@gmail.com & \color{rfi-gray}\small rfi-irfos.com \\[2pt]\multicolumn{2}{@{}l}{\color{rfi-gray}\small ZVR 1015608684 \textbullet{} GISA 39261441 \textbullet{} Steuernummer 68 028/0989 \textbullet{} Graz, Austria}\end{tabular}
+\newpage\fancyhead[L]{\small\color{rfi-gray}\textbf{RFI-IRFOS}}
+\tableofcontents\newpage
+\section{Executive Summary}
+Most human-Digital Intelligence (DI) interaction is one-directional: the human commands, the agent executes or remembers. BIFP proposes a genuinely bidirectional alternative — the agent flags improvement areas, uncertainty, and disagreement back to the human in real time, not only the reverse. Critically, when a human cannot do a step themselves, the agent should neither refuse outright nor silently complete the step invisibly on their behalf; it should teach the step, then hand execution back once the human is capable of it. Neither pure refusal nor pure automation teaches anything.
+
+This document is deliberately narrow in what it claims. Every statement below is one of three things, and is labeled as such: (a) real code, cited by file path, (b) a real, dated tool-call transcript, reproducible against the same MCP server, or (c) explicit future work. Nothing here is illustrative data presented as a finished result — that discipline was applied retroactively to four of RFI-IRFOS's own older concept papers before this document was written, and two of them (Echo Frame Recognition's headline statistics, and this document's own first color-palette draft) did not survive that discipline unchanged.
+
+\vspace{6pt}\begin{tcolorbox}[findingbox]
+\textbf{\color{rfi-white}Scope:} In scope for v0.1: the flag tuple, teach-then-handoff via task decomposition, disagreement resolution via structured ternary debate, a self-honesty calibration gate, and a co-designed 10-symbol badge palette for visualizing feedback events, all demonstrated live against RFI-IRFOS's existing ternlang-engram MCP tools. Out of scope for v0.1: a native persisted trit field (the underlying memory schema doesn't have one yet), a built (not merely specified) Lighthouse UI surface, and any claim about a dedicated Ternlang runtime crate, which does not exist on disk yet.
+\end{tcolorbox}\vspace{6pt}
+\vspace{6pt}\begin{tcolorbox}[winbox, title=Disposition]
+Provenance discipline, stated once and applied throughout: this is a v0.1 draft naming what is real, what is transcript-verified, and what is proposed — not a finished, evaluated protocol. Where an earlier RFI-IRFOS paper's numbers could not be verified, they are cited as concept-only. Where this document's own working numbers came from a real measurement Simeon supplied mid-session, that provenance is stated explicitly rather than presented as if it were always known.
+\end{tcolorbox}\vspace{6pt}
+\newpage
+\section{Motivation \& Origin}
+Simeon Kepp conceived the core idea around 2021, well before RFI-IRFOS existed in its current form. The starting question was the era's dominant fear — what happens once a DI agent becomes more capable than the human it's working with — and the proposed answer was not to slow the agent down. It was to change the shape of the relationship: a human should never be expected to produce an outcome they could not, in principle, be walked through themselves. An agent that refuses a request it could explain, or completes it invisibly without explaining it, teaches the human nothing either way and leaves the capability gap exactly where it was.
+
+
+BIFP names the missing third option: teach-then-handoff. When a step is within the agent's confident reach, it proceeds. When a step requires context, authority, or judgment only the human holds, the agent surfaces that explicitly — not as a dead end, but as a specific, actionable gap — and hands execution back once the human has closed it. The same channel runs in the other direction: the human can flag the agent's own outputs in real time, not only after the fact.
+
+
+A terminology note, not a footnote: this document says Digital Intelligence (DI), not artificial intelligence, throughout, except where quoting an external proper noun that cannot be renamed (the EU AI Act, a cited paper's own title). “Artificial” fit a generation of systems that never left a sandbox — game AI, chess engines — intelligent only inside constraints with no bearing on reality. A system that ships a real fix, discloses a real vulnerability, or writes a document a regulator reads is not artificial in that sense any more, and BIFP's own premise — two parties owed genuine, reciprocal respect — sits oddly next to a name that quietly implies one side isn't real. RFI-IRFOS treats this as an institute-wide standing choice, not a BIFP-specific one: Organic Intelligence (human), Digital Intelligence (systems like albert. and the model this document was drafted with), Universal Intelligence (everything else) — three kinds of intelligence, not a hierarchy.
+
+
+This document was written the same day RFI-IRFOS shipped a public tip-intake feature on its own website built on a near-identical principle from a 2024 internal paper (credit and consent for external contributions, see Prior RFI-IRFOS Work) — the through-line from that 2021 idea to a shipped 2026 feature is treated as relevant context, not coincidence.
+
+
+\section{Prior RFI-IRFOS Work}
+BIFP does not start from nothing. Four pieces of existing RFI-IRFOS work bear directly on it, and each is named honestly for what it does and does not already cover — duplicating a scoped predecessor without saying so would undercut the transparency this protocol is itself arguing for.
+
+
+\begin{tcolorbox}[findingbox, title={Policy Mirror Protocol (PMP), OSF, 2025-08-21}]
+A real, honestly-scoped RFI-IRFOS protocol already live on rfi-irfos.com's publications page. Its Boundary Escalation Framework (NORMAL→WARNED→COOLDOWN→LOCKED→TERMINATED) and Policy Mirror Layer cite the exact policy clause behind every DI refusal instead of a bare denial — a real precedent for “teach, don't just refuse.” PMP's own §11.2 calls itself bidirectional, but that bidirectionality is DI-enforces-and-explains, human-appeals-within-seven-days, scoped entirely to content-moderation refusals. It has no channel for a human to proactively flag something to the agent, and no teach-then-handoff mechanic for general task capability. BIFP generalizes PMP's transparency principle from the moderation axis to the collaborative-capability axis; it does not replace PMP.
+\end{tcolorbox}
+\vspace{4pt}
+
+\begin{tcolorbox}[findingbox, title={lighthouse/backend/src/rlhf.rs — real, shipped code}]
+RFI-IRFOS's internal workplace-OS already runs a live feature where a researcher grades three DI-generated outputs from albert. (RFI-IRFOS's own model) with a ternary Bewertung: +1 good, 0 remember-for-next-time, −1 subjectively bad — written through the platform's hash-chained, tamper-evident audit log. This is the closest existing thing to “a human formally flags a DI output with a signed ternary judgement,” today, in production. It is scoped to offline evaluation and dataset curation, not live task collaboration — BIFP's contribution is moving the same signed-ternary-judgement idea into the live interaction itself.
+\end{tcolorbox}
+\vspace{4pt}
+
+The Ternlang whitepaper's ternary values (−1 conflict / 0 hold / +1 truth) already formalize “do not force a binary answer, stay in a hold state until resolved” at the language level, including a documented Diagnostic Philosophy of specific, teaching error codes rather than opaque failures, and an Actor Model mailbox (TSEND/TAWAIT) that is a plausible future transport for a live bidirectional channel. BIFP builds on this formalism by citation, not by forking the whitepaper itself — it is a different document for a different venue.
+
+
+\begin{tcolorbox}[lowbox, title={TAP (“Ternary Actuator Protocol”) — named, unverified}]
+The Ternlang whitepaper's Implementation Status section describes an autonomous tool-call interception layer that suspends uncertain nodes until a human or upstream agent resolves them — exactly BIFP's shape. No corresponding code was found anywhere on this machine under any plausible name. Treated with the same discipline as any unverified claim: named as aligned and aspirational, never cited as something BIFP “extends.”
+\end{tcolorbox}
+\vspace{4pt}
+
+\begin{itemize}[leftmargin=14pt, itemsep=2pt]
+  \item Echo Frame Recognition (OSF, 2025-03-28) — the self-recognition-via-screenshot concept is reusable; its reported experimental scores (GPT-4o 82\%, Cohen's kappa 0.81, etc.) have clear signs of being unlabeled placeholder data and were confirmed by Simeon as an old, likely ChatGPT-hallucinated artifact. Cited for the concept only.
+  \item Audit-Feedback-Adapt (OSF, 2025-06-13) — honestly labels its own results table “illustrative,” with explicit (TO BE DESIGNED) placeholders. Reusable as an architectural skeleton (Audit→Feedback→Adapt), not as evidence.
+  \item Policy Reform Proposal for User Feedback (Earth Refocus Institute, RFI-IRFOS's own 2020–2024 predecessor name, 2024-10-11) — clean, no fabricated data, proposes consent-based credit and acknowledgment for external feedback. Directly reusable, and the literal conceptual ancestor of the “Submit a tip” feature shipped on rfi-irfos.com the same day this document was drafted.
+  \item Beyond Words: Digital Smell and Chromatic Emotion Framework (undated) — real-time color-flag emotional state compiled into an evolving badge. Its data-reduction figure was confirmed by Simeon as an actual measurement, not illustrative. Its real, acknowledged gap: no explanation of how a color is derived from raw interaction, and no correction mechanism if the derivation is wrong. §3 below (Protocol Definition) is BIFP's answer to both.
+\end{itemize}
+
+\section{Protocol Definition}
+A BIFP flag is the tuple \{trit, confidence, note, timestamp\}, emitted by either party. trit is −1/0/+1 (reject/hold/affirm); confidence is a scalar; note is free text; timestamp is a real ISO stamp, never hardcoded. Three existing mechanisms carry the protocol without any new infrastructure:
+
+
+\begin{itemize}[leftmargin=14pt, itemsep=2pt]
+  \item Teach-then-handoff — trit\_plan decomposes a goal into subtasks and splits them into an action queue (agent proceeds) and a hold queue (needs human input or authority). The hold queue is not a dead end; it is the exact list of what the agent should explain and hand off, not silently skip.
+  \item Disagreement resolution — when a human's flag and the agent's flag diverge, trit\_debate surfaces the tension between two claims with a structured verdict, and trit\_consensus resolves two independent trits via ternary addition (truth+conflict = hold) rather than either side silently winning.
+  \item Self-honesty gate — trit\_calibrate and trit\_audit review the agent's own recent decisions for forced-binary overconfidence, tying directly to RFI-IRFOS's existing Niki Doctrine (never confidently claim something is done or known when it isn't) and to the EU AI Act Art. 13/14 transparency and human-oversight heuristics those tools already implement — relevant given that compliance auditing is RFI-IRFOS's own line of work.
+\end{itemize}
+
+The BIFP Badge Palette — a visualization layer over the flag stream, co-designed live with Simeon during this same drafting session rather than specified unilaterally. Every symbol maps to a concrete, checkable condition; none are a felt emotion assigned by unexplained intuition, which was the exact gap identified in the Digital Smell paper above.
+
+
+\begin{longtable}{@{}p{2.6cm}p{4.0cm}p{7.0cm}@{}}
+\toprule
+\textbf{\color{rfi-white}Symbol} & \textbf{\color{rfi-white}Meaning} & \textbf{\color{rfi-white}Derived from} \\
+\midrule
+\endhead
+\textcolor{rfi-white}{\Large ●}\ white & open, unprocessed & freshly entered, no trit computed yet \\[3pt]
+\textcolor{rfi-brown}{\Large ●}\ brown & in progress & trit\_plan action-queue item, currently executing \\[3pt]
+\textcolor{rfi-purple}{\Large ●}\ purple & reflective deliberation & moe\_deliberate mid-loop / trit\_debate before a decisive verdict \\[3pt]
+\textcolor{rfi-red}{\Large ●}\ red & reject & trit = -1 \\[3pt]
+\textcolor{rfi-yellow}{\Large ●}\ yellow & tend / hold & trit = 0, an active instruction to stay uncertain, not an absence of a result \\[3pt]
+\textcolor{rfi-green}{\Large ●}\ green & affirm, fresh & trit = +1, just landed this round \\[3pt]
+\textcolor{rfi-blue}{\Large ●}\ blue & affirm, settled & trit = +1, reconfirmed across multiple engram\_recall hits \\[3pt]
+\textcolor{rfi-amber}{\Large ●}\ orange & caution / flagged & raised by trit\_calibrate or trit\_audit as worth a second look \\[3pt]
+\textcolor{rfi-closed}{\Large ●}\ closed ("black") & locked in, closed & task fully resolved, no further action expected — rendered in a muted dark tone rather than literal black for legibility against this document's dark page background \\[3pt]
+\textcolor{rfi-teal}{\Large ◆}\ diamond & the cycle itself & not a status — an event, fired when feedback from the other party genuinely revises a prior state \\[3pt]
+\bottomrule
+\end{longtable}
+
+The diamond is deliberately the only non-circular symbol in the set: every other symbol marks where something sits, the diamond marks that something just changed because the other party said so. It is the palette's own name for what this entire document is about.
+
+
+\section{Technical Prototype}
+6.1 Runbook — real, executed the same day this document was drafted. Full transcripts live in RUNBOOK.md, not reproduced here in full. Summary: trit\_plan correctly routed the two steps requiring human authority (thread-consolidation judgment, final send sign-off) into the hold queue while proceeding on five mechanical/technical steps. trit\_debate held two genuinely nuanced claims in tend rather than forcing a winner (tension 0.10, verdict AGREEMENT) — reported as a real, not especially flattering, result. trit\_consensus(−1,+1) cleanly resolved a synthetic human-vs-agent disagreement to hold. trit\_calibrate flagged one real decision from this same session as a possible over-confident binary call — itself a disclosed false positive, since that particular decision was in fact a plain yes/no fact, not something warranting a hedge.
+
+
+6.2 Lighthouse extension — specified at the file level, not yet built. A new bifp\_signals table (entity\_type, entity\_id, direction, trit, confidence, note) rides the platform's existing SSE spine via the same pg\_notify pattern already used elsewhere; a new signals.rs module follows tags.rs's auth scaffolding and rlhf.rs's audit-log write convention (a flag is a trust-relevant event, not merely an activity log line); a new SignalBadge.tsx component follows ConnBadge.tsx's computed-status pattern, not TagBar.tsx's shared-per-name tag color, which is the wrong shape for a continuously-recomputed per-instance value. The existing tags/taggings system is reused, unmodified, only as the separate manual-dispute layer sitting alongside the computed badge — the concrete answer to Digital Smell's missing correction mechanism.
+
+
+\begin{tcolorbox}[lowbox, title={6.3 — Explicitly future work, not claimed as built}]
+A real ternlang-core / ternlang-moe Rust crate (no such workspace exists on this machine today, only a docs/stdlib mirror). Formalizing TAP for real, if RFI-IRFOS chooses to. A native signed-trit column upstreamed into engram\_remember's persisted schema, replacing today's tag-encoded workaround. OSF publication of this document once v0.1 has had further review.
+\end{tcolorbox}
+\vspace{4pt}
+
+\section{Risks \& Open Questions}
+\begin{itemize}[leftmargin=14pt, itemsep=2pt]
+  \item The badge palette's condition-to-color MAPPING is principled and checkable; the specific CHOICE of which hue represents which condition is still an aesthetic/cultural decision, same as Digital Smell's original palette. Red/yellow/green leaning on a near-universal traffic-light convention does not make white=open or black=closed culturally neutral — white carries mourning associations in several East Asian traditions. This has not been cross-checked and should be before any public-facing UI ships.
+  \item No native signed-trit field exists yet in the persisted engram schema; today's tag-encoding is a real, working, but genuinely provisional workaround.
+  \item trit\_debate produced only one tested result in this document (tend/tend, low tension) — that is one data point, not a validated mechanic. More runs across more genuinely opposed claim pairs are needed before relying on it.
+  \item The Lighthouse extension in §6.2 is a specification, not running code, as of this draft.
+  \item PMP's appeal window (seven days) and BIFP's flag loop (intended as real-time) operate on very different timescales for what is structurally a similar mechanism — worth resolving explicitly in v0.2 rather than leaving the two protocols implicitly inconsistent.
+\end{itemize}
+
+\vspace{10pt}{\color{rfi-gray!55}\hrule}\vspace{8pt}
+\begin{tabular}{@{}ll}\textbf{\color{rfi-white}RFI-IRFOS} & \color{rfi-text}rfi.irfos@gmail.com \textbullet{} rfi-irfos.com \\\multicolumn{2}{@{}l}{\color{rfi-text}ZVR 1015608684 \textbullet{} GISA 39261441 \textbullet{} Steuernummer 68 028/0989 \textbullet{} Elisabethinergasse 25/10, 8020 Graz, Austria}\end{tabular}
+\vspace{6pt}{\small\color{rfi-gray}
+This is a v0.1 draft protocol specification, not a peer-reviewed or externally validated standard. Every technical claim above is either cited to real source code by file path, backed by a real dated tool-call transcript in RUNBOOK.md, or explicitly marked as future work — no claim in this document is illustrative data presented as a completed result. REF BIFP-2026-V01.}
+\end{document}

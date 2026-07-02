@@ -1,0 +1,95 @@
+{
+  "ref": "BIFP-2026-V01",
+  "mode": "direct",
+  "title": "Bidirectional Instant Feedback Protocol (BIFP)",
+  "app": "v0.1 Draft Protocol Specification",
+  "runhead": "BIFP v0.1",
+  "subtitle": "Real-time, symmetric feedback between human and agent — teach, don't just refuse or silently complete",
+  "meta": [
+    ["Author", "RFI-IRFOS Research Team"],
+    ["Origin", "Simeon Kepp, concept ~2021, formalized 2026-07-02"],
+    ["Status", "v0.1 — Draft"],
+    ["Repository", "~/projects/bifp (RUNBOOK.md holds real, dated tool transcripts)"]
+  ],
+  "exec_summary": [
+    "Most human-Digital Intelligence (DI) interaction is one-directional: the human commands, the agent executes or remembers. BIFP proposes a genuinely bidirectional alternative — the agent flags improvement areas, uncertainty, and disagreement back to the human in real time, not only the reverse. Critically, when a human cannot do a step themselves, the agent should neither refuse outright nor silently complete the step invisibly on their behalf; it should teach the step, then hand execution back once the human is capable of it. Neither pure refusal nor pure automation teaches anything.",
+    "This document is deliberately narrow in what it claims. Every statement below is one of three things, and is labeled as such: (a) real code, cited by file path, (b) a real, dated tool-call transcript, reproducible against the same MCP server, or (c) explicit future work. Nothing here is illustrative data presented as a finished result — that discipline was applied retroactively to four of RFI-IRFOS's own older concept papers before this document was written, and two of them (Echo Frame Recognition's headline statistics, and this document's own first color-palette draft) did not survive that discipline unchanged."
+  ],
+  "scope": "In scope for v0.1: the flag tuple, teach-then-handoff via task decomposition, disagreement resolution via structured ternary debate, a self-honesty calibration gate, and a co-designed 10-symbol badge palette for visualizing feedback events, all demonstrated live against RFI-IRFOS's existing ternlang-engram MCP tools. Out of scope for v0.1: a native persisted trit field (the underlying memory schema doesn't have one yet), a built (not merely specified) Lighthouse UI surface, and any claim about a dedicated Ternlang runtime crate, which does not exist on disk yet.",
+  "disposition": "Provenance discipline, stated once and applied throughout: this is a v0.1 draft naming what is real, what is transcript-verified, and what is proposed — not a finished, evaluated protocol. Where an earlier RFI-IRFOS paper's numbers could not be verified, they are cited as concept-only. Where this document's own working numbers came from a real measurement Simeon supplied mid-session, that provenance is stated explicitly rather than presented as if it were always known.",
+  "pre_sections": [
+    {
+      "title": "Motivation & Origin",
+      "blocks": [
+        {"type": "para", "text": "Simeon Kepp conceived the core idea around 2021, well before RFI-IRFOS existed in its current form. The starting question was the era's dominant fear — what happens once a DI agent becomes more capable than the human it's working with — and the proposed answer was not to slow the agent down. It was to change the shape of the relationship: a human should never be expected to produce an outcome they could not, in principle, be walked through themselves. An agent that refuses a request it could explain, or completes it invisibly without explaining it, teaches the human nothing either way and leaves the capability gap exactly where it was."},
+        {"type": "para", "text": "BIFP names the missing third option: teach-then-handoff. When a step is within the agent's confident reach, it proceeds. When a step requires context, authority, or judgment only the human holds, the agent surfaces that explicitly — not as a dead end, but as a specific, actionable gap — and hands execution back once the human has closed it. The same channel runs in the other direction: the human can flag the agent's own outputs in real time, not only after the fact."},
+        {"type": "para", "text": "A terminology note, not a footnote: this document says Digital Intelligence (DI), not artificial intelligence, throughout, except where quoting an external proper noun that cannot be renamed (the EU AI Act, a cited paper's own title). “Artificial” fit a generation of systems that never left a sandbox — game AI, chess engines — intelligent only inside constraints with no bearing on reality. A system that ships a real fix, discloses a real vulnerability, or writes a document a regulator reads is not artificial in that sense any more, and BIFP's own premise — two parties owed genuine, reciprocal respect — sits oddly next to a name that quietly implies one side isn't real. RFI-IRFOS treats this as an institute-wide standing choice, not a BIFP-specific one: Organic Intelligence (human), Digital Intelligence (systems like albert. and the model this document was drafted with), Universal Intelligence (everything else) — three kinds of intelligence, not a hierarchy."},
+        {"type": "para", "text": "This document was written the same day RFI-IRFOS shipped a public tip-intake feature on its own website built on a near-identical principle from a 2024 internal paper (credit and consent for external contributions, see Prior RFI-IRFOS Work) — the through-line from that 2021 idea to a shipped 2026 feature is treated as relevant context, not coincidence."}
+      ]
+    }
+  ],
+  "post_sections": [
+    {
+      "title": "Prior RFI-IRFOS Work",
+      "blocks": [
+        {"type": "para", "text": "BIFP does not start from nothing. Four pieces of existing RFI-IRFOS work bear directly on it, and each is named honestly for what it does and does not already cover — duplicating a scoped predecessor without saying so would undercut the transparency this protocol is itself arguing for."},
+        {"type": "box", "style": "finding", "title": "Policy Mirror Protocol (PMP), OSF, 2025-08-21", "text": "A real, honestly-scoped RFI-IRFOS protocol already live on rfi-irfos.com's publications page. Its Boundary Escalation Framework (NORMAL→WARNED→COOLDOWN→LOCKED→TERMINATED) and Policy Mirror Layer cite the exact policy clause behind every DI refusal instead of a bare denial — a real precedent for “teach, don't just refuse.” PMP's own §11.2 calls itself bidirectional, but that bidirectionality is DI-enforces-and-explains, human-appeals-within-seven-days, scoped entirely to content-moderation refusals. It has no channel for a human to proactively flag something to the agent, and no teach-then-handoff mechanic for general task capability. BIFP generalizes PMP's transparency principle from the moderation axis to the collaborative-capability axis; it does not replace PMP."},
+        {"type": "box", "style": "finding", "title": "lighthouse/backend/src/rlhf.rs — real, shipped code", "text": "RFI-IRFOS's internal workplace-OS already runs a live feature where a researcher grades three DI-generated outputs from albert. (RFI-IRFOS's own model) with a ternary Bewertung: +1 good, 0 remember-for-next-time, −1 subjectively bad — written through the platform's hash-chained, tamper-evident audit log. This is the closest existing thing to “a human formally flags a DI output with a signed ternary judgement,” today, in production. It is scoped to offline evaluation and dataset curation, not live task collaboration — BIFP's contribution is moving the same signed-ternary-judgement idea into the live interaction itself."},
+        {"type": "para", "text": "The Ternlang whitepaper's ternary values (−1 conflict / 0 hold / +1 truth) already formalize “do not force a binary answer, stay in a hold state until resolved” at the language level, including a documented Diagnostic Philosophy of specific, teaching error codes rather than opaque failures, and an Actor Model mailbox (TSEND/TAWAIT) that is a plausible future transport for a live bidirectional channel. BIFP builds on this formalism by citation, not by forking the whitepaper itself — it is a different document for a different venue."},
+        {"type": "box", "style": "low", "title": "TAP (“Ternary Actuator Protocol”) — named, unverified", "text": "The Ternlang whitepaper's Implementation Status section describes an autonomous tool-call interception layer that suspends uncertain nodes until a human or upstream agent resolves them — exactly BIFP's shape. No corresponding code was found anywhere on this machine under any plausible name. Treated with the same discipline as any unverified claim: named as aligned and aspirational, never cited as something BIFP “extends.”"},
+        {"type": "bullets", "items": [
+          "Echo Frame Recognition (OSF, 2025-03-28) — the self-recognition-via-screenshot concept is reusable; its reported experimental scores (GPT-4o 82%, Cohen's kappa 0.81, etc.) have clear signs of being unlabeled placeholder data and were confirmed by Simeon as an old, likely ChatGPT-hallucinated artifact. Cited for the concept only.",
+          "Audit-Feedback-Adapt (OSF, 2025-06-13) — honestly labels its own results table “illustrative,” with explicit (TO BE DESIGNED) placeholders. Reusable as an architectural skeleton (Audit→Feedback→Adapt), not as evidence.",
+          "Policy Reform Proposal for User Feedback (Earth Refocus Institute, RFI-IRFOS's own 2020–2024 predecessor name, 2024-10-11) — clean, no fabricated data, proposes consent-based credit and acknowledgment for external feedback. Directly reusable, and the literal conceptual ancestor of the “Submit a tip” feature shipped on rfi-irfos.com the same day this document was drafted.",
+          "Beyond Words: Digital Smell and Chromatic Emotion Framework (undated) — real-time color-flag emotional state compiled into an evolving badge. Its data-reduction figure was confirmed by Simeon as an actual measurement, not illustrative. Its real, acknowledged gap: no explanation of how a color is derived from raw interaction, and no correction mechanism if the derivation is wrong. §3 below (Protocol Definition) is BIFP's answer to both."
+        ]}
+      ]
+    },
+    {
+      "title": "Protocol Definition",
+      "blocks": [
+        {"type": "para", "text": "A BIFP flag is the tuple {trit, confidence, note, timestamp}, emitted by either party. trit is −1/0/+1 (reject/hold/affirm); confidence is a scalar; note is free text; timestamp is a real ISO stamp, never hardcoded. Three existing mechanisms carry the protocol without any new infrastructure:"},
+        {"type": "bullets", "items": [
+          "Teach-then-handoff — trit_plan decomposes a goal into subtasks and splits them into an action queue (agent proceeds) and a hold queue (needs human input or authority). The hold queue is not a dead end; it is the exact list of what the agent should explain and hand off, not silently skip.",
+          "Disagreement resolution — when a human's flag and the agent's flag diverge, trit_debate surfaces the tension between two claims with a structured verdict, and trit_consensus resolves two independent trits via ternary addition (truth+conflict = hold) rather than either side silently winning.",
+          "Self-honesty gate — trit_calibrate and trit_audit review the agent's own recent decisions for forced-binary overconfidence, tying directly to RFI-IRFOS's existing Niki Doctrine (never confidently claim something is done or known when it isn't) and to the EU AI Act Art. 13/14 transparency and human-oversight heuristics those tools already implement — relevant given that compliance auditing is RFI-IRFOS's own line of work."
+        ]},
+        {"type": "para", "text": "The BIFP Badge Palette — a visualization layer over the flag stream, co-designed live with Simeon during this same drafting session rather than specified unilaterally. Every symbol maps to a concrete, checkable condition; none are a felt emotion assigned by unexplained intuition, which was the exact gap identified in the Digital Smell paper above."},
+        {"type": "table", "headers": ["Symbol", "Meaning", "Derived from"], "widths": ["p{2.6cm}", "p{4.0cm}", "p{7.0cm}"], "rows": [
+          [{"dot": "white", "label": "white"}, "open, unprocessed", "freshly entered, no trit computed yet"],
+          [{"dot": "brown", "label": "brown"}, "in progress", "trit_plan action-queue item, currently executing"],
+          [{"dot": "purple", "label": "purple"}, "reflective deliberation", "moe_deliberate mid-loop / trit_debate before a decisive verdict"],
+          [{"dot": "red", "label": "red"}, "reject", "trit = -1"],
+          [{"dot": "yellow", "label": "yellow"}, "tend / hold", "trit = 0, an active instruction to stay uncertain, not an absence of a result"],
+          [{"dot": "green", "label": "green"}, "affirm, fresh", "trit = +1, just landed this round"],
+          [{"dot": "blue", "label": "blue"}, "affirm, settled", "trit = +1, reconfirmed across multiple engram_recall hits"],
+          [{"dot": "orange", "label": "orange"}, "caution / flagged", "raised by trit_calibrate or trit_audit as worth a second look"],
+          [{"dot": "closed", "label": "closed (\"black\")"}, "locked in, closed", "task fully resolved, no further action expected — rendered in a muted dark tone rather than literal black for legibility against this document's dark page background"],
+          [{"dot": "teal", "shape": "diamond", "label": "diamond"}, "the cycle itself", "not a status — an event, fired when feedback from the other party genuinely revises a prior state"]
+        ]},
+        {"type": "para", "text": "The diamond is deliberately the only non-circular symbol in the set: every other symbol marks where something sits, the diamond marks that something just changed because the other party said so. It is the palette's own name for what this entire document is about."}
+      ]
+    },
+    {
+      "title": "Technical Prototype",
+      "blocks": [
+        {"type": "para", "text": "6.1 Runbook — real, executed the same day this document was drafted. Full transcripts live in RUNBOOK.md, not reproduced here in full. Summary: trit_plan correctly routed the two steps requiring human authority (thread-consolidation judgment, final send sign-off) into the hold queue while proceeding on five mechanical/technical steps. trit_debate held two genuinely nuanced claims in tend rather than forcing a winner (tension 0.10, verdict AGREEMENT) — reported as a real, not especially flattering, result. trit_consensus(−1,+1) cleanly resolved a synthetic human-vs-agent disagreement to hold. trit_calibrate flagged one real decision from this same session as a possible over-confident binary call — itself a disclosed false positive, since that particular decision was in fact a plain yes/no fact, not something warranting a hedge."},
+        {"type": "para", "text": "6.2 Lighthouse extension — specified at the file level, not yet built. A new bifp_signals table (entity_type, entity_id, direction, trit, confidence, note) rides the platform's existing SSE spine via the same pg_notify pattern already used elsewhere; a new signals.rs module follows tags.rs's auth scaffolding and rlhf.rs's audit-log write convention (a flag is a trust-relevant event, not merely an activity log line); a new SignalBadge.tsx component follows ConnBadge.tsx's computed-status pattern, not TagBar.tsx's shared-per-name tag color, which is the wrong shape for a continuously-recomputed per-instance value. The existing tags/taggings system is reused, unmodified, only as the separate manual-dispute layer sitting alongside the computed badge — the concrete answer to Digital Smell's missing correction mechanism."},
+        {"type": "box", "style": "low", "title": "6.3 — Explicitly future work, not claimed as built", "text": "A real ternlang-core / ternlang-moe Rust crate (no such workspace exists on this machine today, only a docs/stdlib mirror). Formalizing TAP for real, if RFI-IRFOS chooses to. A native signed-trit column upstreamed into engram_remember's persisted schema, replacing today's tag-encoded workaround. OSF publication of this document once v0.1 has had further review."}
+      ]
+    },
+    {
+      "title": "Risks & Open Questions",
+      "blocks": [
+        {"type": "bullets", "items": [
+          "The badge palette's condition-to-color MAPPING is principled and checkable; the specific CHOICE of which hue represents which condition is still an aesthetic/cultural decision, same as Digital Smell's original palette. Red/yellow/green leaning on a near-universal traffic-light convention does not make white=open or black=closed culturally neutral — white carries mourning associations in several East Asian traditions. This has not been cross-checked and should be before any public-facing UI ships.",
+          "No native signed-trit field exists yet in the persisted engram schema; today's tag-encoding is a real, working, but genuinely provisional workaround.",
+          "trit_debate produced only one tested result in this document (tend/tend, low tension) — that is one data point, not a validated mechanic. More runs across more genuinely opposed claim pairs are needed before relying on it.",
+          "The Lighthouse extension in §6.2 is a specification, not running code, as of this draft.",
+          "PMP's appeal window (seven days) and BIFP's flag loop (intended as real-time) operate on very different timescales for what is structurally a similar mechanism — worth resolving explicitly in v0.2 rather than leaving the two protocols implicitly inconsistent."
+        ]}
+      ]
+    }
+  ],
+  "footer_note": "This is a v0.1 draft protocol specification, not a peer-reviewed or externally validated standard. Every technical claim above is either cited to real source code by file path, backed by a real dated tool-call transcript in RUNBOOK.md, or explicitly marked as future work — no claim in this document is illustrative data presented as a completed result."
+}
