@@ -1,7 +1,7 @@
 # BIFP — Bidirectional Instant Feedback Protocol
 
-> **Human rights are not subject to negotiation.**
-> — RFI-IRFOS × Emergent Interaction Lab, core doctrine.
+## Human rights are not subject to negotiation.
+
 
 
 Status: **v0.2 draft**, 2026-07-02 (v0.1 the same day, hours earlier).
